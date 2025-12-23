@@ -1,0 +1,49 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+
+    {
+      "name": "Eval Metrics – Central Linear Decoder (Phase 3)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/recon/scripts/eval_metrics.py",
+      "args": [
+        "--model",
+        "${workspaceFolder}/recon/outputs/linear_decoder.pt",
+        "--data",
+        "${workspaceFolder}/recon/outputs/activity_lum_pairs.pt"
+      ],
+      "python": "/opt/miniconda3/envs/flyvis/bin/python",
+      "console": "integratedTerminal"
+    },
+
+    {
+      "name": "Train Linear Decoder – Full Field (Phase 4.1)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/recon/scripts/test_invertibility.py",
+      "args": [
+        "--data",
+        "${workspaceFolder}/recon/outputs/activity_lum_pairs_fullfield.pt"
+      ],
+      "python": "/opt/miniconda3/envs/flyvis/bin/python",
+      "console": "integratedTerminal"
+    },
+
+    {
+      "name": "Eval Metrics – Full Field Linear Decoder (Phase 4.1)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/recon/scripts/eval_metrics.py",
+      "args": [
+        "--model",
+        "${workspaceFolder}/recon/outputs/linear_decoder_fullfield.pt",
+        "--data",
+        "${workspaceFolder}/recon/outputs/activity_lum_pairs_fullfield.pt"
+      ],
+      "python": "/opt/miniconda3/envs/flyvis/bin/python",
+      "console": "integratedTerminal"
+    }
+
+  ]
+}

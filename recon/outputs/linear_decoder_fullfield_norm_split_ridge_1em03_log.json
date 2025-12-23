@@ -1,0 +1,8 @@
+{
+  "ridge_lambda": 0.001,
+  "epochs": 200,
+  "final_train_mse": 0.030489245533115335,
+  "train_data": "recon/outputs/activity_lum_train_fullfield.pt",
+  "out_model": "recon/outputs/linear_decoder_fullfield_norm_split_ridge_1em03.pt",
+  "out_stats": "recon/outputs/linear_decoder_fullfield_norm_split_ridge_1em03_stats.pt"
+}
