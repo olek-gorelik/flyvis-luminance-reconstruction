@@ -22,30 +22,37 @@ This project adds a reconstruction pipeline that:
 
 No FlyVis core modules are modified.
 
-## Pipeline Overview
-1) Activity extraction
-   - `recon/scripts/extract_activity.py` (central activity)
-   - `recon/scripts/extract_activity_fullfield.py` (full-field activity)
+## Script Inventory
+All reconstruction logic lives in `recon/scripts/`. Use these scripts to recreate any part of the results:
 
-2) Baseline decoding
-   - `recon/scripts/test_invertibility.py`
-   - `recon/scripts/test_invertibility_fullfield_norm.py`
+Extraction
+- `recon/scripts/extract_activity.py` (central activity)
+- `recon/scripts/extract_activity_fullfield.py` (full-field activity, supports index lists)
 
-3) Train/test split (sequence-level, no temporal leakage)
-   - `recon/scripts/make_sintel_split.py`
+Baseline decoding
+- `recon/scripts/test_invertibility.py`
+- `recon/scripts/test_invertibility_fullfield_norm.py`
 
-4) Normalized training (train split only)
-   - `recon/scripts/train_linear_fullfield_norm_split.py`
+Splits
+- `recon/scripts/make_sintel_split.py`
 
-5) Ridge regularization and sweep
-   - `recon/scripts/train_linear_fullfield_norm_split_ridge.py`
-   - `recon/scripts/sweep_ridge.py`
+Normalized training
+- `recon/scripts/train_linear_fullfield_norm_split.py`
 
-6) Evaluation and visualization
-   - `recon/scripts/eval_metrics.py`
-   - `recon/scripts/visualize_recon.py`
-   - `recon/scripts/visualize_recon_retinal*.py`
-   - `recon/scripts/visualize_train_vs_test*.py`
+Ridge regularization
+- `recon/scripts/train_linear_fullfield_norm_split_ridge.py`
+- `recon/scripts/sweep_ridge.py`
+
+Evaluation
+- `recon/scripts/eval_metrics.py`
+
+Visualization
+- `recon/scripts/visualize_recon.py`
+- `recon/scripts/visualize_recon_retinal.py`
+- `recon/scripts/visualize_recon_retinal_central.py`
+- `recon/scripts/visualize_recon_retinal_fullfield_norm.py`
+- `recon/scripts/visualize_train_vs_test.py`
+- `recon/scripts/visualize_train_vs_test_ridge.py`
 
 ## Key Results (Summary)
 With full-field activity, proper feature normalization, and ridge regularization:
@@ -61,8 +68,8 @@ These results indicate early fly visual representations preserve enough informat
 
 This repository does not include FlyVis or downloaded datasets. FlyVis must be installed separately.
 
-## Reproducing the Full Split Pipeline
-The following is a clean, leakage-free train/test split workflow.
+## Best Working Workflow (Full-Field + Split + Normalization + Ridge)
+This is the recommended pipeline for strong generalization on held-out sequences.
 
 1) Create a fixed split
 ```
@@ -85,20 +92,12 @@ The following is a clean, leakage-free train/test split workflow.
   --output-name activity_lum_test_fullfield.pt
 ```
 
-4) Train normalized decoder (train split only)
-```
-/opt/miniconda3/envs/flyvis/bin/python recon/scripts/train_linear_fullfield_norm_split.py \
-  --data recon/outputs/activity_lum_train_fullfield.pt \
-  --out-model recon/outputs/linear_decoder_fullfield_norm_split.pt \
-  --out-stats recon/outputs/linear_decoder_fullfield_norm_split_stats.pt
-```
-
-5) Ridge sweep and evaluation
+4) Ridge sweep and evaluation
 ```
 /opt/miniconda3/envs/flyvis/bin/python recon/scripts/sweep_ridge.py
 ```
 
-6) Evaluate a chosen ridge model on train/test
+5) Evaluate a chosen ridge model on train/test
 ```
 /opt/miniconda3/envs/flyvis/bin/python recon/scripts/eval_metrics.py \
   --model recon/outputs/linear_decoder_fullfield_norm_split_ridge_1e-4.pt \
@@ -113,7 +112,7 @@ The following is a clean, leakage-free train/test split workflow.
   --split-name test
 ```
 
-7) Visualize train vs test
+6) Visualize train vs test (ridge)
 ```
 /opt/miniconda3/envs/flyvis/bin/python recon/scripts/visualize_train_vs_test_ridge.py \
   --model recon/outputs/linear_decoder_fullfield_norm_split_ridge_1e-4.pt \
@@ -122,6 +121,77 @@ The following is a clean, leakage-free train/test split workflow.
   --test-data recon/outputs/activity_lum_test_fullfield.pt \
   --n-samples 10 \
   --seed 0
+```
+
+## Alternative Workflows (Ablations and Baselines)
+Use these to isolate the effect of central vs full-field, normalization, and ridge.
+
+### A) Central-only baseline (no normalization, no split)
+```
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/extract_activity.py \
+  --output-name activity_lum_pairs.pt
+
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/test_invertibility.py \
+  --data recon/outputs/activity_lum_pairs.pt \
+  --output recon/outputs/linear_decoder.pt
+
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/eval_metrics.py \
+  --model recon/outputs/linear_decoder.pt \
+  --data recon/outputs/activity_lum_pairs.pt
+```
+
+### B) Full-field baseline (no normalization, no split)
+```
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/extract_activity_fullfield.py \
+  --output-name activity_lum_pairs_fullfield.pt
+
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/test_invertibility.py \
+  --data recon/outputs/activity_lum_pairs_fullfield.pt \
+  --output recon/outputs/linear_decoder_fullfield.pt
+
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/eval_metrics.py \
+  --model recon/outputs/linear_decoder_fullfield.pt \
+  --data recon/outputs/activity_lum_pairs_fullfield.pt
+```
+
+### C) Full-field with normalization (no split)
+```
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/test_invertibility_fullfield_norm.py
+
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/eval_metrics.py \
+  --model recon/outputs/linear_decoder_fullfield_norm.pt \
+  --data recon/outputs/activity_lum_pairs_fullfield.pt \
+  --xnorm-stats recon/outputs/linear_decoder_fullfield_norm_stats.pt
+```
+
+### D) Full-field with normalization (train/test split, no ridge)
+```
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/train_linear_fullfield_norm_split.py \
+  --data recon/outputs/activity_lum_train_fullfield.pt \
+  --out-model recon/outputs/linear_decoder_fullfield_norm_split.pt \
+  --out-stats recon/outputs/linear_decoder_fullfield_norm_split_stats.pt
+
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/eval_metrics.py \
+  --model recon/outputs/linear_decoder_fullfield_norm_split.pt \
+  --data recon/outputs/activity_lum_test_fullfield.pt \
+  --xnorm-stats recon/outputs/linear_decoder_fullfield_norm_split_stats.pt \
+  --split-name test
+```
+
+### E) Ridge-regularized split (manual single ridge value)
+```
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/train_linear_fullfield_norm_split_ridge.py \
+  --train-data recon/outputs/activity_lum_train_fullfield.pt \
+  --ridge 1e-4 \
+  --out-model recon/outputs/linear_decoder_fullfield_norm_split_ridge_1e-4.pt \
+  --out-stats recon/outputs/linear_decoder_fullfield_norm_split_ridge_1e-4_stats.pt \
+  --out-log recon/outputs/linear_decoder_fullfield_norm_split_ridge_1e-4_log.json
+
+/opt/miniconda3/envs/flyvis/bin/python recon/scripts/eval_metrics.py \
+  --model recon/outputs/linear_decoder_fullfield_norm_split_ridge_1e-4.pt \
+  --data recon/outputs/activity_lum_test_fullfield.pt \
+  --xnorm-stats recon/outputs/linear_decoder_fullfield_norm_split_ridge_1e-4_stats.pt \
+  --split-name test
 ```
 
 ## Metrics
