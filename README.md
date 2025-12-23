@@ -124,7 +124,8 @@ This is the recommended pipeline for strong generalization on held-out sequences
 ```
 
 ## Showcase of Best Workflow Performance
-<img width="1372" height="1367" alt="FN Ridge Split Testing 20 copy" src="https://github.com/user-attachments/assets/0c596118-aeca-4dda-9707-5aa8de746c55" />
+<img width="1372" height="1367" alt="FN Ridge Split Testing 20 copy" src="https://github.com/user-attachments/assets/47299458-697f-456b-bd0f-1a87dfd6f365" />
+
 
 
 ## Alternative Workflows (Ablations and Baselines)
@@ -225,6 +226,7 @@ Train/test comparisons are saved as PNGs under `recon/outputs/`.
 
 ## Notes
 Exact arguments and convenience run configs can be stored in `.vscode/launch.json`.
+
 
 
 
