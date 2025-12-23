@@ -1,4 +1,4 @@
-<img width="1377" height="6409" alt="FN Ridge Split Testing 20" src="https://github.com/user-attachments/assets/92d590ea-8706-476f-af4d-03c322fb6e45" /># FlyVis Luminance Reconstruction
+## FlyVis Luminance Reconstruction
 
 This repository implements an inverse luminance reconstruction pipeline on top of FlyVis, a connectome-based model of the Drosophila visual system. Using only external scripts (no FlyVis core modifications), it tests how much visual information is preserved in early neural activity and how well luminance can be decoded with simple linear models.
 
@@ -124,7 +124,7 @@ This is the recommended pipeline for strong generalization on held-out sequences
 ```
 
 ## Showcase of Best Workflow Performance
-<img width="1377" height="6409" alt="FN Ridge Split Testing 20" src="https://github.com/user-attachments/assets/7b7f4660-2b3e-4eef-a73b-3b63007e1a7d" />
+<img width="1377" height="8500" alt="FN Ridge Split Testing 20" src="https://github.com/user-attachments/assets/7b7f4660-2b3e-4eef-a73b-3b63007e1a7d" />
 
 ## Alternative Workflows (Ablations and Baselines)
 Use these to isolate the effect of central vs full-field, normalization, and ridge.
@@ -224,5 +224,6 @@ Train/test comparisons are saved as PNGs under `recon/outputs/`.
 
 ## Notes
 Exact arguments and convenience run configs can be stored in `.vscode/launch.json`.
+
 
 
